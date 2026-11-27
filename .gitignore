@@ -1,0 +1,6 @@
+# VS Code postavke
+.vscode/
+
+# Env datoteke s tajnim ključevima
+.env
+.env.*

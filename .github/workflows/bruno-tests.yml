@@ -2,8 +2,10 @@ name: Pokreni Bruno kolekciju
 
 on:
   workflow_dispatch: # Omogućuje ručno pokretanje klikom na gumb na GitHubu
-  push:
-    branches: [ main ]
+  #push:
+  #  branches: [ main ]
+  #schedule:
+  #  - cron: '0 7 * * *' # Svaki dan u 07:00 UTC (08:00 CET u Hrvatskoj)    
 
 permissions:
   id-token: write # Obavezno za OIDC prijavu na Infisical
@@ -26,12 +28,13 @@ jobs:
           env-slug: "dev" # Ili "prod", ovisno u kojem okruženju je ključ
           domain: "https://eu.infisical.com"
 
-      - name: Instaliraj Bruno CLI (ako već nije na sustavu)
-        run: npm install -g @usebruno/cli
+      - name: Provjeri i instaliraj Bruno CLI samo ako nedostaje
+        run: |
+          if ! command -v bru &> /dev/null; then
+            npm install -g @usebruno/cli
+          fi
 
       - name: Pokreni Bruno kolekciju
         run: |
-          # Zamijenite "ime-okruzenja" s nazivom vašeg Bruno environmenta (npr. Groq)
-          # ili uklonite "--env" ako ne koristite Bruno environments
           cd Groq_API
           bru run --env "GROQ_API" --sandbox=developer --env-var "GROQ_API_KEY=$GROQ_API_KEY"

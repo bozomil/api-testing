@@ -33,4 +33,5 @@ jobs:
         run: |
           # Zamijenite "ime-okruzenja" s nazivom vašeg Bruno environmenta (npr. Groq)
           # ili uklonite "--env" ako ne koristite Bruno environments
-          bru run --env "Groq" --env-var "GROQ_API_KEY=$GROQ_API_KEY"
+          cd Groq_API
+          bru run --env "GROQ_API" --env-var "GROQ_API_KEY=$GROQ_API_KEY"

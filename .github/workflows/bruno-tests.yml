@@ -22,7 +22,7 @@ jobs:
         with:
           method: "oidc"
           identity-id: "6a39fea7-0ba5-411f-8a62-79145a274b14"
-          project-slug: "<UPISITE-PROJECT-SLUG-OD-GROQ-API>"
+          project-slug: "groq-api-kx8f"
           env-slug: "dev" # Ili "prod", ovisno u kojem okruženju je ključ
           domain: "https://eu.infisical.com"
 

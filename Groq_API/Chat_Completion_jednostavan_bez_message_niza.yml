@@ -1,0 +1,27 @@
+info:
+  name: Chat_Completion_jednostavan_bez_message_niza
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/openai/v1/responses"
+  body:
+    type: json
+    data: |
+      {
+        "model": "openai/gpt-oss-20b",
+        "instructions": "Uvijek i isključivo odgovaraj na čistom, pravilnom hrvatskom jeziku. Nikada ne miješaj druge jezike.",
+        "temperature": 0.2,
+        "input": "Napiši kratku Bash naredbu za pronalazak svih .log datoteka većih od 50MB na Debianu."
+      }
+  auth:
+    type: bearer
+    token: "{{GROQ_API_KEY}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

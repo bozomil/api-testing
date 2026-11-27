@@ -1,0 +1,38 @@
+info:
+  name: Chat_Completion(Analiza slika)
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/openai/v1/chat/completions"
+  body:
+    type: json
+    data: |
+      {
+        "model": "qwen/qwen3.8-27b",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              { "type": "text", "text": "Opiši na hrvatskom što se nalazi na ovoj slici." },
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=600"
+                }
+              }
+            ]
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: "{{GROQ_API_KEY}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

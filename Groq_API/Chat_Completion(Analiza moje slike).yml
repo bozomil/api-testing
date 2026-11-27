@@ -1,0 +1,67 @@
+info:
+  name: Chat_Completion(Analiza moje slike)
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/openai/v1/chat/completions"
+  body:
+    type: json
+    data: |
+      {
+        "model": "qwen/qwen3.8-27b",
+        "temperature": 0.2,
+        "messages": [
+          {
+            "role": "system",
+            "content": "Ti si pomoćnik koji uvijek i isključivo odgovara na čistom, pravilnom hrvatskom jeziku. Nikada ne koristi talijanski, španjolski niti engleski jezik."
+          },
+          {
+            "role": "user",
+            "content": [
+              { "type": "text", "text": "Detaljno opiši na hrvatskom jeziku što se nalazi na ovoj slici." },
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "{{SLIKA_BASE64}}"
+                }
+              }
+            ]
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: "{{GROQ_API_KEY}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        const fs = require('fs');
+        const path = require('path');
+
+        // Upišite putanju do svoje slike (.jpg, .jpeg, .png ili .webp)
+        const putanjaDoSlike = '/home/bmilanovic/Pictures/spiderman.webp';
+
+        // Automatsko određivanje MIME tipa prema ekstenziji
+        const ekstenzija = path.extname(putanjaDoSlike).toLowerCase();
+        const mimeTipovi = {
+          '.jpg': 'image/jpeg',
+          '.jpeg': 'image/jpeg',
+          '.png': 'image/png',
+          '.webp': 'image/webp'
+        };
+
+        const tip = mimeTipovi[ekstenzija] || 'image/jpeg';
+        const base64Podaci = fs.readFileSync(putanjaDoSlike, { encoding: 'base64' });
+
+        bru.setVar('SLIKA_BASE64', `data:${tip};base64,${base64Podaci}`);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

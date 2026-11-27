@@ -1,0 +1,37 @@
+info:
+  name: Chat_Completion(JSON Mode)
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/openai/v1/chat/completions"
+  body:
+    type: json
+    data: |
+      {
+        "model": "openai/gpt-oss-20b",
+        "temperature": 0.1,
+        "include_reasoning": false,
+        "response_format": { "type": "json_object" },
+        "messages": [
+          {
+            "role": "system",
+            "content": "Odgovaraj isključivo na hrvatskom jeziku. Vrati validan JSON objekt sa ključevima: grad, drzava, pozivni_broj. Svi nazivi država i gradova moraju biti na hrvatskom jeziku (npr. Hrvatska)."
+          },
+          {
+            "role": "user",
+            "content": "Podaci za Zagreb."
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: "{{GROQ_API_KEY}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

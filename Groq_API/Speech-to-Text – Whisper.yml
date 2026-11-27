@@ -1,0 +1,32 @@
+info:
+  name: Speech-to-Text – Whisper
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/openai/v1/audio/transcriptions"
+  body:
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value:
+          - /home/bmilanovic/Music/test.mp3
+        contentType: audio/mpeg
+      - name: model
+        type: text
+        value: whisper-large-v3-turbo
+      - name: language
+        type: text
+        value: hr
+  auth:
+    type: bearer
+    token: "{{GROQ_API_KEY}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,6 +1,7 @@
 # VS Code postavke
 .vscode/
 
-# Env datoteke s tajnim ključevima
+# Tajne i lokalne postavke
 .env
 .env.*
+*.env

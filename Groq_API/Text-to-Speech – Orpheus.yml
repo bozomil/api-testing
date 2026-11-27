@@ -1,0 +1,27 @@
+info:
+  name: Text-to-Speech – Orpheus
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: "{{BASE_URL}}/openai/v1/audio/speech"
+  body:
+    type: json
+    data: |
+      {
+        "model": "canopylabs/orpheus-v1-english",
+        "input": "Hello! All Groq endpoints are configured in Bruno.",
+        "voice": "diana",
+        "response_format": "wav"
+      }
+  auth:
+    type: bearer
+    token: "{{GROQ_API_KEY}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

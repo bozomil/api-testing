@@ -8,11 +8,11 @@ permissions:
   contents: read
 
 env:
-  CLIENT_NAME: groq-api   # Mapa na Raspberry Pi-ju -> https://ossetup.com
+  CLIENT_NAME: groq-api   # Glavna adresa: https://ossetup.com
 
 jobs:
   run-bruno-windows:
-    runs-on: [self-hosted, windows]   # Usmjerava posao isključivo na Windows runner
+    runs-on: [self-hosted, windows]
 
     steps:
       - name: Preuzmi kod iz repozitorija
@@ -43,6 +43,28 @@ jobs:
             (Get-Content ../allure-results/bruno-results.xml -Raw) -replace '<testsuite([^>]*?)name="[^"]*"', '<testsuite$1name="API Testovi (Bruno)"' | Set-Content ../allure-results/bruno-results.xml
           }
 
+      - name: Dodaj Environment i Executor podatke za Allure
+        if: always()
+        run: |
+          @"
+          OS=Windows ($env:COMPUTERNAME)
+          Runner=GitHub Self-Hosted Runner
+          API_Tool=Bruno CLI
+          Environment=Dev (Groq API)
+          "@ | Out-File -Encoding ascii allure-results/environment.properties
+
+          $executor = @{
+            name = "GitHub Actions"
+            type = "github"
+            url = "${{ github.server_url }}/${{ github.repository }}/actions"
+            buildOrder = [int]"${{ github.run_number }}"
+            buildName = "Run #${{ github.run_number }}"
+            buildUrl = "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            reportName = "Allure Report #${{ github.run_number }}"
+            reportUrl = "https://ossetup.com{{ env.CLIENT_NAME }}/runs/${{ github.run_number }}/"
+          } | ConvertTo-Json
+          $executor | Out-File -Encoding ascii allure-results/executor.json
+
       - name: Generiraj Allure izvještaj i sačuvaj povijest
         if: always()
         run: |
@@ -53,9 +75,12 @@ jobs:
           $ErrorActionPreference = "Stop"
           C:\allure-2.30.0\bin\allure.bat generate allure-results --clean -o allure-report
 
-      - name: Pošalji izvještaj na Raspberry Pi
+      - name: Pošalji izvještaj i arhivu runa na Raspberry Pi
         if: always()
         run: |
-          ssh -p 223 pi@192.168.0.7 "mkdir -p /portainer/Files/AppData/Config/allure/report/${{ env.CLIENT_NAME }} && rm -rf /portainer/Files/AppData/Config/allure/report/${{ env.CLIENT_NAME }}/*"
-          scp -P 223 -r allure-report/* "pi@192.168.0.7:/portainer/Files/AppData/Config/allure/report/${{ env.CLIENT_NAME }}/"
+          $BASE_DIR = "/portainer/Files/AppData/Config/allure/report/${{ env.CLIENT_NAME }}"
+          $RUN_DIR = "$BASE_DIR/runs/${{ github.run_number }}"
 
+          ssh -p 223 pi@192.168.0.7 "mkdir -p $RUN_DIR && find $BASE_DIR -maxdepth 1 -mindepth 1 ! -name 'runs' -exec rm -rf {} +"
+          scp -P 223 -r allure-report/* "pi@192.168.0.7:$BASE_DIR/"
+          scp -P 223 -r allure-report/* "pi@192.168.0.7:$RUN_DIR/"

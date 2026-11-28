@@ -1,0 +1,54 @@
+name: Pokreni Bruno kolekciju (Windows)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  CLIENT_NAME: groq-api   # Mapa na Raspberry Pi-ju -> https://ossetup.com
+
+jobs:
+  run-bruno-windows:
+    runs-on: [self-hosted, windows]   # Usmjerava posao isključivo na Windows runner
+
+    steps:
+      - name: Preuzmi kod iz repozitorija
+        uses: actions/checkout@v4
+
+      - name: Dohvati Groq API ključ s Infisical EU
+        uses: Infisical/secrets-action@v1.0.16
+        with:
+          method: "oidc"
+          identity-id: "6a39fea7-0ba5-411f-8a62-79145a274b14"
+          project-slug: "groq-api-kx8f"
+          env-slug: "dev"
+          domain: "https://infisical.com"
+
+      - name: Provjeri i instaliraj Bruno CLI samo ako nedostaje
+        run: |
+          if (-not (Get-Command bru -ErrorAction SilentlyContinue)) {
+            npm install -g @usebruno/cli
+          }
+
+      - name: Pokreni Bruno kolekciju
+        run: |
+          New-Item -ItemType Directory -Force -Path allure-results | Out-Null
+          cd Groq_API
+          bru run --env "GROQ_API" --sandbox=developer --env-var "GROQ_API_KEY=$env:GROQ_API_KEY" --reporter-junit ../allure-results/bruno-results.xml
+          (Get-Content ../allure-results/bruno-results.xml) -replace '<testsuite ', '<testsuite name="API Testovi (Bruno)" ' | Set-Content ../allure-results/bruno-results.xml
+
+      - name: Generiraj Allure izvještaj i sačuvaj povijest
+        if: always()
+        run: |
+          New-Item -ItemType Directory -Force -Path allure-results/history | Out-Null
+          scp -P 223 -r "pi@192.168.0.7:/portainer/Files/AppData/Config/allure/report/${{ env.CLIENT_NAME }}/history/*" allure-results/history/ 2>$null
+          C:\allure-2.30.0\bin\allure.bat generate allure-results --clean -o allure-report
+
+      - name: Pošalji izvještaj na Raspberry Pi
+        if: always()
+        run: |
+          ssh -p 223 pi@192.168.0.7 "mkdir -p /portainer/Files/AppData/Config/allure/report/${{ env.CLIENT_NAME }} && rm -rf /portainer/Files/AppData/Config/allure/report/${{ env.CLIENT_NAME }}/*"
+          scp -P 223 -r allure-report/* "pi@192.168.0.7:/portainer/Files/AppData/Config/allure/report/${{ env.CLIENT_NAME }}/"

@@ -25,7 +25,7 @@ jobs:
           identity-id: "6a39fea7-0ba5-411f-8a62-79145a274b14"
           project-slug: "groq-api-kx8f"
           env-slug: "dev"
-          domain: "https://infisical.com"
+          domain: "https://eu.infisical.com"
 
       - name: Provjeri i instaliraj Bruno CLI samo ako nedostaje
         run: |

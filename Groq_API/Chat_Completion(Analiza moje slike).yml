@@ -43,7 +43,7 @@ runtime:
         const path = require('path');
 
         // Upišite putanju do svoje slike (.jpg, .jpeg, .png ili .webp)
-        const putanjaDoSlike = '/home/bmilanovic/Pictures/spiderman.webp';
+        const putanjaDoSlike = path.join(bru.cwd(), 'assets', 'spiderman.webp');
 
         // Automatsko određivanje MIME tipa prema ekstenziji
         const ekstenzija = path.extname(putanjaDoSlike).toLowerCase();

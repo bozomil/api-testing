@@ -34,17 +34,23 @@ jobs:
           }
 
       - name: Pokreni Bruno kolekciju
+        continue-on-error: true
         run: |
           New-Item -ItemType Directory -Force -Path allure-results | Out-Null
           cd Groq_API
           bru run --env "GROQ_API" --sandbox=developer --env-var "GROQ_API_KEY=$env:GROQ_API_KEY" --reporter-junit ../allure-results/bruno-results.xml
-          (Get-Content ../allure-results/bruno-results.xml) -replace '<testsuite ', '<testsuite name="API Testovi (Bruno)" ' | Set-Content ../allure-results/bruno-results.xml
+          if (Test-Path ../allure-results/bruno-results.xml) {
+            (Get-Content ../allure-results/bruno-results.xml) -replace '<testsuite ', '<testsuite name="API Testovi (Bruno)" ' | Set-Content ../allure-results/bruno-results.xml
+          }
 
       - name: Generiraj Allure izvještaj i sačuvaj povijest
         if: always()
         run: |
+          $ErrorActionPreference = "SilentlyContinue"
           New-Item -ItemType Directory -Force -Path allure-results/history | Out-Null
           scp -P 223 -r "pi@192.168.0.7:/portainer/Files/AppData/Config/allure/report/${{ env.CLIENT_NAME }}/history/*" allure-results/history/ 2>$null
+          $global:LASTEXITCODE = 0
+          $ErrorActionPreference = "Stop"
           C:\allure-2.30.0\bin\allure.bat generate allure-results --clean -o allure-report
 
       - name: Pošalji izvještaj na Raspberry Pi

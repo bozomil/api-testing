@@ -53,15 +53,17 @@ jobs:
           Environment=Dev (Groq API)
           "@ | Out-File -Encoding ascii allure-results/environment.properties
 
+          $SUB = "allure"
+          $DOM = "ossetup.com"
           $executor = @{
             name = "GitHub Actions"
             type = "github"
-            url = "${{ github.server_url }}/${{ github.repository }}/actions"
-            buildOrder = [int]"${{ github.run_number }}"
-            buildName = "Run #${{ github.run_number }}"
-            buildUrl = "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-            reportName = "Allure Report #${{ github.run_number }}"
-            reportUrl = "https://ossetup.com{{ env.CLIENT_NAME }}/runs/${{ github.run_number }}/"
+            url = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions"
+            buildOrder = [int]$env:GITHUB_RUN_NUMBER
+            buildName = "Run #$env:GITHUB_RUN_NUMBER"
+            buildUrl = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+            reportName = "Allure Report #$env:GITHUB_RUN_NUMBER"
+            reportUrl = "https://$SUB.$DOM/$env:CLIENT_NAME/runs/$env:GITHUB_RUN_NUMBER/"
           } | ConvertTo-Json
           $executor | Out-File -Encoding ascii allure-results/executor.json
 

@@ -40,7 +40,7 @@ jobs:
           cd Groq_API
           bru run --env "GROQ_API" --sandbox=developer --env-var "GROQ_API_KEY=$env:GROQ_API_KEY" --reporter-junit ../allure-results/bruno-results.xml
           if (Test-Path ../allure-results/bruno-results.xml) {
-            (Get-Content ../allure-results/bruno-results.xml) -replace '<testsuite ', '<testsuite name="API Testovi (Bruno)" ' | Set-Content ../allure-results/bruno-results.xml
+            (Get-Content ../allure-results/bruno-results.xml -Raw) -replace '<testsuite([^>]*?)name="[^"]*"', '<testsuite$1name="API Testovi (Bruno)"' | Set-Content ../allure-results/bruno-results.xml
           }
 
       - name: Generiraj Allure izvještaj i sačuvaj povijest
@@ -58,3 +58,4 @@ jobs:
         run: |
           ssh -p 223 pi@192.168.0.7 "mkdir -p /portainer/Files/AppData/Config/allure/report/${{ env.CLIENT_NAME }} && rm -rf /portainer/Files/AppData/Config/allure/report/${{ env.CLIENT_NAME }}/*"
           scp -P 223 -r allure-report/* "pi@192.168.0.7:/portainer/Files/AppData/Config/allure/report/${{ env.CLIENT_NAME }}/"
+

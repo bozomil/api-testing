@@ -1,8 +1,7 @@
 name: GROQ_API
 variables:
-  - secret: true
-    name: GROQ_API_KEY
-    description: ""
   - name: BASE_URL
     value: https://api.groq.com
+  - secret: true
+    name: GROQ_API_KEY
     description: ""
